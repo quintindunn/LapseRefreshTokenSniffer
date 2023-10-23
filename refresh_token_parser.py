@@ -1,6 +1,3 @@
-import mitmproxy.http
-
-
 def log_output(access_token: str, refresh_token: str, user_id: str):
     print(f"Access Token: {access_token}")
     print(f"Refresh Token: {refresh_token}")
@@ -13,7 +10,7 @@ class ParseRefreshToken:
         self.refresh_token: str | None = None
         self.user_id: str | None = None
 
-    def response(self, flow: mitmproxy.http.HTTPFlow):
+    def response(self, flow):
         if flow.request.url == "https://auth.production.journal-api.lapse.app/verify" \
                 and flow.response.status_code == 200:
             json = flow.response.json()
