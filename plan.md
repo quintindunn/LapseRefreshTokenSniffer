@@ -1,0 +1,2 @@
+# What needs to be done:
+Tracking of clients independently via domain connected through. This will allow us to generate every user their own uuid, and make them connect to a proxy with an address similar to `28f4551786424761bd2376cacecc9b0a.lapsetokensniffer.quintindev.com:8008`. Once they get the response from the `/verify` we can then redirect traffic on the proxy from `lapsetokensniffer.quintindev.com:80` to a dynamically rendered page from the proxy, which contains the `refresh token`, `access token`, and `user id`.
