@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
     instance = MitMInstance(
         instance_uuid=uuid.uuid4().hex,
-        port=8005,
+        port=8100,
         creds={"username": "username", "password": "password"},
         metadata="Manual instance",
         addon_path=addon_path
