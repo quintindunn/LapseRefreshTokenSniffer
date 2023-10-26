@@ -1,0 +1,26 @@
+{% extends 'core/core.html' %}
+
+{% block head %}
+{% endblock head %}
+
+{% block content %}
+    <div class="info">
+        <h1>Lapse Refresh Token Sniffer</h1>
+        <p>Open source: <a href="https://github.com/quintindunn/LapseRefreshTokenSniffer">LapseRefreshTokenSniffer</a></p>
+        <p>Using this tool you can get your Lapse refresh token for usage in <a href="https://github.com/quintindunn/LapseRefreshTokenSniffer">LapsePy</a></p>
+    </div>
+    <hr>
+    <div class="proxy-dispatch-info">
+        <h2>Start your own proxy to get your Refresh Token</h2>
+        <p>You can only get [INSERT_MAX_PROXIES_PER_HOUR] proxies per hour, each proxy will only stay live for [TIMELIMIT_PER_PROXY] minutes.</p>
+        <p>Here is a tutorial on how to use this tool!</p>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/NpEaa2P7qZI?si=AtZh8AhMWEjZKuN9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+    </div>
+    <hr>
+    <div class="proxy-dispatch">
+        <p>You've used 0 of you [INSERT_MAX_PROXIES_PER_HOUR] proxies this hour.</p>
+        <form action="{{ url_for('proxy') }}" method="POST">
+            <button class="proxy-dispatch" type="submit">Generate proxy</button>
+        </form>
+    </div>
+{% endblock content %}
