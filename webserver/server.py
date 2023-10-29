@@ -4,11 +4,13 @@ import uuid
 from flask import Flask, render_template, request, redirect, url_for
 
 import sys
+
+import logging
+
 sys.path.append('..')  # Allow importing from ../proxy_dispatcher
 
 from proxy_dispatcher.dispatcher import MitMInstance
 
-import logging
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
@@ -19,7 +21,6 @@ app.template_folder = "./templates"
 # CONFIG
 PORT_RANGE = list(range(8000, 8101))  # Allowed ports: 8000-8100
 ADDON_PATH = "../proxy_dispatcher/refresh_token_parser.py"
-
 
 # Structure:
 # {
@@ -99,7 +100,7 @@ if __name__ == '__main__':
     threading.Thread(target=lambda: app.run()).start()
     instance = MitMInstance(
         instance_uuid=uuid.uuid4().hex,
-        port=max(free_ports)+1,
+        port=max(free_ports) + 1,
         creds={"username": "username", "password": "password"},
         metadata="Manual instance",
         addon_path=ADDON_PATH
