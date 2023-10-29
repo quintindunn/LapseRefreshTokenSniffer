@@ -6,11 +6,11 @@
 {% endblock head %}
 
 {% block content %}
-    <input type="hidden" id="p-ip" value="127.0.0.1">
-    <input type="hidden" id="p-port" value="8100">
+    <input type="hidden" id="p-ip" value="{{ ip }}">
+    <input type="hidden" id="p-port" value="{{ port }}">
     <input type="hidden" id="p-username" value="{{ creds.0 }}">
     <input type="hidden" id="p-password" value="{{ creds.1 }}">
-    <input type="hidden" id="endpoint" value="{{ url_for("check_proxy_status", pk_port=8100) }}">
+    <input type="hidden" id="endpoint" value="{{ url_for("check_proxy_status", pk_port=port) }}">
     <div class="info">
         <h1>Your proxy has been generated!</h1>
     </div>
@@ -22,11 +22,11 @@
         <table>
             <tr>
                 <td>IP address</td>
-                <td>127.0.0.1</td>
+                <td>{{ ip }}</td>
             </tr>
             <tr>
                 <td>Port</td>
-                <td>8100</td>
+                <td>{{ port }}</td>
             </tr>
             <tr>
                 <td>Username</td>

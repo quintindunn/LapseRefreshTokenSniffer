@@ -141,7 +141,9 @@ def proxy_status_frontend(pk_port: int):
     if verify:
         return verify
     ctx = {
-        'creds': request.args.get("authorization").split(":")
+        'creds': request.args.get("authorization").split(":"),
+        'ip': request.server[0],
+        'port': pk_port
     }
     return render_template("status.html", **ctx)
 
