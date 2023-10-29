@@ -35,6 +35,7 @@ body {
 
 .proxy-results > #proxy-results {
     background: #FFFFFF;
+    resize: none;
     border: 1px solid black;
     height: 20vh;
     width: 60vw;
