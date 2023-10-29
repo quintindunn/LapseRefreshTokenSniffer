@@ -37,7 +37,19 @@ class MitMInstance:
         logger.info(f"Starting MitMDump instance {self.port=} {self.uuid=} {self.creds=} {self.metadata=}".
                     replace("self.", ""))
 
-        command = [MITMDUMP, "-p", str(self.port), "-s", self.addon_path, "-q"]
+        # Add the credentials to the command if the proxy uses a username and password for authentication
+        if self.creds:
+            command_suffix = ["--proxyauth", f"{self.creds['username']}:{self.creds['password']}"]
+        else:
+            command_suffix = []
+
+        # Setup command for mitmdump, ignore appattest as if it goes through the proxy it will refuse the connection.
+        command = [MITMDUMP,
+                   "-q",
+                   "-p", str(self.port),
+                   "-s", self.addon_path,
+                   "--ignore-hosts", "register.appattest.apple.com"
+                   ] + command_suffix
 
         self.proc = subprocess.Popen(command, stdout=sys.stdout, shell=True)
         self.proc.wait()
