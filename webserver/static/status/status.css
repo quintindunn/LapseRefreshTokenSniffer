@@ -1,0 +1,42 @@
+body {
+    padding-bottom: 4vh;
+}
+
+.proxy-info {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    text-align: center;
+    width: 70vw;
+}
+
+.proxy-info > iframe {
+    margin: auto auto 2vw;
+}
+
+.proxy-info > table {
+    width: 40%;
+    border: 1px solid black;
+    margin: auto auto 1vh;
+}
+
+.proxy-info > table > tbody > tr > td {
+    border: 1px solid black;
+}
+
+.proxy-results {
+    width: 70vw;
+    height: 35vh;
+    border: 1px solid black;
+    background: #fffbfb;
+    margin: auto;
+    text-align: center;
+}
+
+.proxy-results > #proxy-results {
+    background: #FFFFFF;
+    border: 1px solid black;
+    height: 20vh;
+    width: 60vw;
+    margin: auto;
+}

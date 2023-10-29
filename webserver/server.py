@@ -1,6 +1,10 @@
+import json
+import os
 import threading
+import time
 import uuid
 
+import requests
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 
 import sys
@@ -10,7 +14,6 @@ import logging
 sys.path.append('..')  # Allow importing from ../proxy_dispatcher
 
 from proxy_dispatcher.dispatcher import MitMInstance
-
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
@@ -50,6 +53,10 @@ def verify_authorization(req: request, port: int) -> None | tuple[str, int]:
     proxy = live_proxies[port]
 
     basic_auth_client = req.headers.get("authorization", "")
+
+    # Try body auth
+    if basic_auth_client == "":
+        basic_auth_client = req.args.get("authorization")
 
     # Setup creds to be in basic format
     usr, pwd = proxy.creds['username'], proxy.creds['password']
@@ -130,7 +137,14 @@ def update_proxy_creds(pk_port: int):
 
 @app.route("/proxy/status/<int:pk_port>")
 def proxy_status_frontend(pk_port: int):
-    verify_authorization(request, pk_port)
+    verify = verify_authorization(request, pk_port)
+    if verify:
+        return verify
+    ctx = {
+        'creds': request.args.get("authorization").split(":")
+    }
+    return render_template("status.html", **ctx)
+
 
 if __name__ == '__main__':
     threading.Thread(target=lambda: app.run()).start()
@@ -141,4 +155,11 @@ if __name__ == '__main__':
         metadata="Manual instance",
         addon_path=ADDON_PATH
     )
+
+    # For testing
+    r = requests.post("http://127.0.0.1:5000/proxy")
+    r.raise_for_status()
+    r = requests.post("http://127.0.0.1:5000/api/v1/status/8100", headers={"authorization": "username:password"},
+                      json=json.loads(os.getenv("payload")))
+    r.raise_for_status()
     instance.dispatch(blocking=True)
