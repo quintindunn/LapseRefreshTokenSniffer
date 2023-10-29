@@ -48,7 +48,7 @@ def index():
 
 
 @app.route("/proxy", methods=["POST"])
-def proxy():
+def gen_proxy():
     client_ip = request.remote_addr
     using_vpn = check_for_vpn(client_ip)
 
@@ -82,9 +82,25 @@ def proxy():
 
 @app.route("/api/v1/check/<int:pk_port>", methods=["POST"])
 def check_proxy_status(pk_port: int):
+    """
+    Returns the status attribute of a proxy
+    :param pk_port: port of the proxy
+    :return: json of the proxy status attribute
+    """
     # Check that a proxy is live on the port:
     if pk_port not in live_proxies:
         return "Proxy not found", 404
+
+    proxy = live_proxies[pk_port]
+
+    basic_auth_client = request.headers.get("authorization", "")
+
+    # Setup creds to be in basic format
+    usr, pwd = proxy.creds['username'], proxy.creds['password']
+    basic_auth_proxy = f"{usr}:{pwd}"
+
+    if basic_auth_client != basic_auth_proxy:
+        return f"Invalid credentials", 403
 
     return jsonify(live_proxies[pk_port].status)
 

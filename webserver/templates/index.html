@@ -19,7 +19,7 @@
     <hr>
     <div class="proxy-dispatch">
         <p>You've used 0 of you [INSERT_MAX_PROXIES_PER_HOUR] proxies this hour.</p>
-        <form action="{{ url_for('proxy') }}" method="POST">
+        <form action="{{ url_for('gen_proxy') }}" method="POST">
             <button class="proxy-dispatch" type="submit">Generate proxy</button>
         </form>
     </div>
