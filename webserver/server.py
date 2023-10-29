@@ -115,7 +115,7 @@ def check_proxy_status(pk_port: int):
     if verify:
         return verify
 
-    return jsonify(live_proxies[pk_port].status)
+    return json.dumps(live_proxies[pk_port].status, indent=2)
 
 
 @app.route("/api/v1/status/<int:pk_port>", methods=["POST"])

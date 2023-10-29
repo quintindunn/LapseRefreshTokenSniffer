@@ -10,6 +10,7 @@
     <input type="hidden" id="p-port" value="8100">
     <input type="hidden" id="p-username" value="{{ creds.0 }}">
     <input type="hidden" id="p-password" value="{{ creds.1 }}">
+    <input type="hidden" id="endpoint" value="{{ url_for("check_proxy_status", pk_port=8100) }}">
     <div class="info">
         <h1>Your proxy has been generated!</h1>
     </div>
