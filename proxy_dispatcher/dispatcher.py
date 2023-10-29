@@ -41,7 +41,8 @@ class MitMInstance:
 
         # Add the credentials to the command if the proxy uses a username and password for authentication
         if self.creds:
-            command_suffix = ["--proxyauth", f"{self.creds['username']}:{self.creds['password']}"]
+            basic_auth = f"{self.creds['username']}:{self.creds['password']}"
+            command_suffix = ["--proxyauth", basic_auth, "--set", f"creds={basic_auth}"]
         else:
             command_suffix = []
 

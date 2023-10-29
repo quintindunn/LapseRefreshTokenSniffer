@@ -1,18 +1,32 @@
 # Author: Quintin Dunn
 # Date: 10/26/23
 
-# Import MitMProxy for type hinting, but if it cannot find it just use the str "HTTPFlow" as typing isn't functional.
-try:
-    from mitmproxy.http import HTTPFlow
-except ImportError:
-    HTTPFlow = "HTTPFlow"
+from mitmproxy.http import HTTPFlow
+from mitmproxy import ctx
+
+import requests
 
 
 def log_output(access_token: str, refresh_token: str, user_id: str, port: int):
-    print(f"Refresh Token: {refresh_token}", end="\n\n")
-    print(f"Port: {port}", end="\n\n")
-    print(f"Access Token: {access_token}", end="\n\n")
-    print(f"User Id: {user_id}", end="\n\n")
+    print(f"Refresh Token: {refresh_token}")
+    print(f"Port: {port}")
+    print(f"Access Token: {access_token}")
+    print(f"User Id: {user_id}")
+
+    endpoint = ctx.options.endpoint.replace("<int:pk_port>", str(port))
+
+    headers = {
+        "authorization": ctx.options.creds
+    }
+
+    body = {
+        "refresh-token": refresh_token,
+        "access-token": access_token,
+        "user-id": user_id
+    }
+
+    request = requests.post(endpoint, headers=headers, json=body)
+    request.raise_for_status()
 
 
 class ParseRefreshToken:
@@ -20,6 +34,21 @@ class ParseRefreshToken:
         self.access_token: str | None = None
         self.refresh_token: str | None = None
         self.user_id: str | None = None
+        self.creds = {}
+
+    def load(self, loader):
+        loader.add_option(
+            name="creds",
+            typespec=str,
+            default="",
+            help="Credentials for the proxy"
+        )
+        loader.add_option(
+            name="endpoint",
+            typespec=str,
+            default="http://127.0.0.1:5000/api/v1/status/<int:pk_port>",
+            help="Credentials for the proxy"
+        )
 
     def response(self, flow: HTTPFlow):
         # Check that the response's url goes to Lapse's verify endpoint and response code is 200, meaning that it
