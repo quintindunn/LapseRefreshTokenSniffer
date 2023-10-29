@@ -104,7 +104,10 @@ def check_proxy_status(pk_port: int):
     :param pk_port: port of the proxy
     :return: json of the proxy status attribute
     """
-    verify_authorization(request, pk_port)
+    verify = verify_authorization(request, pk_port)
+    if verify:
+        return verify
+
     return jsonify(live_proxies[pk_port].status)
 
 
@@ -115,13 +118,19 @@ def update_proxy_creds(pk_port: int):
     :param pk_port: port of the proxy
     :return: redirect to /api/v1/check/<int:pk_port>
     """
-    verify_authorization(request, pk_port)
+    verify = verify_authorization(request, pk_port)
+    if verify:
+        return verify
 
     proxy: MitMInstance = live_proxies[pk_port]
     proxy.status.update(request.json)
 
     return check_proxy_status(pk_port=pk_port)
 
+
+@app.route("/proxy/status/<int:pk_port>")
+def proxy_status_frontend(pk_port: int):
+    verify_authorization(request, pk_port)
 
 if __name__ == '__main__':
     threading.Thread(target=lambda: app.run()).start()
