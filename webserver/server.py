@@ -24,7 +24,7 @@ app.template_folder = "./templates"
 PORT_RANGE = list(range(8000, 8101))  # Allowed ports: 8000-8100
 ADDON_PATH = "../proxy_dispatcher/refresh_token_parser.py"
 
-PROXY_LIFETIME = .0625  # 10 minutes.
+PROXY_LIFETIME = 10  # 10 minutes.
 
 # Structure:
 # {
@@ -159,15 +159,24 @@ def proxy_status_frontend(pk_port: int):
 
 def proxy_manager():
     while True:
+        remove = []
         for port, proxy in live_proxies.items():
             expires = proxy.metadata['expires_at']
             if proxy.proc is None or not proxy.metadata['live']:
                 continue
-            print((expires - datetime.datetime.now()).total_seconds())
             if (expires - datetime.datetime.now()).total_seconds() < 0:
                 # kill the proxy as it has expired...
-                proxy.kill()
                 print(f"Killing proxy at port {port}")
+                proxy.kill()
+                print(f"Proxy at port {port} killed!")
+                remove.append(port)
+
+        for port in remove:
+            del live_proxies[port]
+
+            blocked_ports.remove(port)
+            free_ports.append(port)
+
         time.sleep(2.5)
 
 
@@ -182,10 +191,4 @@ if __name__ == '__main__':
         addon_path=ADDON_PATH
     )
 
-    # For testing
-    # r = requests.post("http://127.0.0.1:5000/proxy")
-    # r.raise_for_status()
-    # r = requests.post("http://127.0.0.1:5000/api/v1/status/8100", headers={"authorization": "username:password"},
-    #                   json=json.loads(os.getenv("payload")))
-    # r.raise_for_status()
     instance.dispatch(blocking=True)
