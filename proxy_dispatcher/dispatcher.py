@@ -5,10 +5,14 @@
 import logging
 import os
 import pathlib
+import signal
 import subprocess
 import sys
 import threading
+import time
 import uuid
+
+import psutil
 
 logger = logging.getLogger("dispatcher.py")
 
@@ -17,7 +21,10 @@ MITMDUMP = "mitmdump"
 
 
 class MitMInstance:
-    def __init__(self, instance_uuid, port, creds, metadata="", addon_path="mitmdump"):
+    def __init__(self, instance_uuid, port, creds, metadata=None, addon_path="mitmdump"):
+        if metadata is None:
+            metadata = {}
+
         self.uuid = instance_uuid
         self.creds = creds
         self.port = port
@@ -73,6 +80,19 @@ class MitMInstance:
 
         self.thread = threading.Thread(target=self._dispatcher, daemon=True)
         self.thread.start()
+
+    def kill(self):
+        for proc in psutil.process_iter():
+            for conns in proc.connections(kind='inet'):
+                if conns.laddr.port == self.port:
+                    try:
+                        proc.send_signal(signal.SIGTERM)
+                    except psutil.NoSuchProcess:
+                        pass
+                    finally:
+                        self.metadata['live'] = False
+
+                    return
 
 
 if __name__ == '__main__':

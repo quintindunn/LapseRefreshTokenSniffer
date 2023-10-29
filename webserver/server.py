@@ -1,10 +1,9 @@
+import datetime
 import json
-import os
 import threading
 import time
 import uuid
 
-import requests
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 
 import sys
@@ -24,6 +23,8 @@ app.template_folder = "./templates"
 # CONFIG
 PORT_RANGE = list(range(8000, 8101))  # Allowed ports: 8000-8100
 ADDON_PATH = "../proxy_dispatcher/refresh_token_parser.py"
+
+PROXY_LIFETIME = .0625  # 10 minutes.
 
 # Structure:
 # {
@@ -99,6 +100,13 @@ def gen_proxy():
     )
 
     live_proxies[port] = proxy_instance
+
+    created = datetime.datetime.now()
+    proxy_instance.metadata = {
+        "created_at": created,
+        "expires_at": created + datetime.timedelta(minutes=PROXY_LIFETIME),
+        "live": True
+    }
     proxy_instance.dispatch(False)
 
     basic_auth = f"{creds['username']}:{creds['password']}"
@@ -149,8 +157,23 @@ def proxy_status_frontend(pk_port: int):
     return render_template("status.html", **ctx)
 
 
+def proxy_manager():
+    while True:
+        for port, proxy in live_proxies.items():
+            expires = proxy.metadata['expires_at']
+            if proxy.proc is None or not proxy.metadata['live']:
+                continue
+            print((expires - datetime.datetime.now()).total_seconds())
+            if (expires - datetime.datetime.now()).total_seconds() < 0:
+                # kill the proxy as it has expired...
+                proxy.kill()
+                print(f"Killing proxy at port {port}")
+        time.sleep(2.5)
+
+
 if __name__ == '__main__':
     threading.Thread(target=lambda: app.run()).start()
+    threading.Thread(target=proxy_manager, daemon=True).start()
     instance = MitMInstance(
         instance_uuid=uuid.uuid4().hex,
         port=max(free_ports) + 1,
