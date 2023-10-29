@@ -101,7 +101,8 @@ def gen_proxy():
     live_proxies[port] = proxy_instance
     proxy_instance.dispatch(False)
 
-    return f"{port=}<br>{creds=}"
+    basic_auth = f"{creds['username']}:{creds['password']}"
+    return redirect(f"{url_for('proxy_status_frontend', pk_port=port)}?authorization={basic_auth}")
 
 
 @app.route("/api/v1/check/<int:pk_port>", methods=["POST"])
@@ -159,9 +160,9 @@ if __name__ == '__main__':
     )
 
     # For testing
-    r = requests.post("http://127.0.0.1:5000/proxy")
-    r.raise_for_status()
-    r = requests.post("http://127.0.0.1:5000/api/v1/status/8100", headers={"authorization": "username:password"},
-                      json=json.loads(os.getenv("payload")))
-    r.raise_for_status()
+    # r = requests.post("http://127.0.0.1:5000/proxy")
+    # r.raise_for_status()
+    # r = requests.post("http://127.0.0.1:5000/api/v1/status/8100", headers={"authorization": "username:password"},
+    #                   json=json.loads(os.getenv("payload")))
+    # r.raise_for_status()
     instance.dispatch(blocking=True)
