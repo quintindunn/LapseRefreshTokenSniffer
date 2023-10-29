@@ -1,7 +1,7 @@
 import threading
 import uuid
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 
 import sys
 
@@ -40,6 +40,23 @@ def check_for_vpn(ip_addr: str):
     :return:
     """
     return False
+
+
+def verify_authorization(req: request, port: int) -> None | tuple[str, int]:
+    # Check that a proxy is live on the port:
+    if port not in live_proxies:
+        return "Proxy not found", 404
+
+    proxy = live_proxies[port]
+
+    basic_auth_client = req.headers.get("authorization", "")
+
+    # Setup creds to be in basic format
+    usr, pwd = proxy.creds['username'], proxy.creds['password']
+    basic_auth_proxy = f"{usr}:{pwd}"
+
+    if basic_auth_client != basic_auth_proxy:
+        return f"Invalid credentials", 403
 
 
 @app.route("/")
@@ -87,22 +104,23 @@ def check_proxy_status(pk_port: int):
     :param pk_port: port of the proxy
     :return: json of the proxy status attribute
     """
-    # Check that a proxy is live on the port:
-    if pk_port not in live_proxies:
-        return "Proxy not found", 404
-
-    proxy = live_proxies[pk_port]
-
-    basic_auth_client = request.headers.get("authorization", "")
-
-    # Setup creds to be in basic format
-    usr, pwd = proxy.creds['username'], proxy.creds['password']
-    basic_auth_proxy = f"{usr}:{pwd}"
-
-    if basic_auth_client != basic_auth_proxy:
-        return f"Invalid credentials", 403
-
+    verify_authorization(request, pk_port)
     return jsonify(live_proxies[pk_port].status)
+
+
+@app.route("/api/v1/status/<int:pk_port>", methods=["POST"])
+def update_proxy_creds(pk_port: int):
+    """
+    Internal endpoint, updates the status of a proxy
+    :param pk_port: port of the proxy
+    :return: redirect to /api/v1/check/<int:pk_port>
+    """
+    verify_authorization(request, pk_port)
+
+    proxy: MitMInstance = live_proxies[pk_port]
+    proxy.status.update(request.json)
+
+    return check_proxy_status(pk_port=pk_port)
 
 
 if __name__ == '__main__':
