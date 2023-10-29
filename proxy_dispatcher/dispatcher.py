@@ -24,6 +24,8 @@ class MitMInstance:
         self.metadata = metadata
         self.addon_path = addon_path
 
+        self.status = {}
+
         self.proc = None
         self.thread = None
 

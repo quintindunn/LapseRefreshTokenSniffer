@@ -1,7 +1,7 @@
 import threading
 import uuid
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, jsonify
 
 import sys
 
@@ -24,7 +24,7 @@ ADDON_PATH = "../proxy_dispatcher/refresh_token_parser.py"
 
 # Structure:
 # {
-#    <IP>: [MitMInstance, MitMInstance]
+#    <port>: MitMInstance
 # }
 live_proxies = {}
 
@@ -40,22 +40,6 @@ def check_for_vpn(ip_addr: str):
     :return:
     """
     return False
-
-
-def append_proxy_to_dict(proxy_instance: MitMInstance, collection: dict, key: str):
-    """
-    Adds an instance of MitMInstance to live_proxies[key]
-    :param proxy_instance: Instance to append to collection
-    :param collection: Dictionary containing the instances
-    :param key: Key to the dictionary
-    :return: collection[key]
-    """
-    if collection.get(key) is None:
-        collection[key] = [proxy_instance]
-    else:
-        collection[key].append(proxy_instance)
-
-    return collection[key]
 
 
 @app.route("/")
@@ -90,10 +74,19 @@ def proxy():
         addon_path=ADDON_PATH
     )
 
-    append_proxy_to_dict(proxy_instance=proxy_instance, collection=live_proxies, key=client_ip)
+    live_proxies[port] = proxy_instance
     proxy_instance.dispatch(False)
 
     return f"{port=}<br>{creds=}"
+
+
+@app.route("/api/v1/check/<int:pk_port>", methods=["POST"])
+def check_proxy_status(pk_port: int):
+    # Check that a proxy is live on the port:
+    if pk_port not in live_proxies:
+        return "Proxy not found", 404
+
+    return jsonify(live_proxies[pk_port].status)
 
 
 if __name__ == '__main__':
@@ -101,8 +94,8 @@ if __name__ == '__main__':
     instance = MitMInstance(
         instance_uuid=uuid.uuid4().hex,
         port=max(free_ports) + 1,
-        creds={"username": "username", "password": "password"},
+        creds={"username": "admin", "password": "password"},
         metadata="Manual instance",
         addon_path=ADDON_PATH
     )
-    instance.dispatch(True)
+    instance.dispatch(blocking=True)
