@@ -21,7 +21,7 @@ app = Flask(__name__)
 app.template_folder = "./templates"
 
 # CONFIG
-PORT_RANGE = list(range(8000, 8101))  # Allowed ports: 8000-8100
+PORT_RANGE = list(range(8000, 8100))  # Allowed ports: 8000-8100
 ADDON_PATH = "../proxy_dispatcher/refresh_token_parser.py"
 
 PROXY_LIFETIME = 10  # 10 minutes.
@@ -33,7 +33,6 @@ PROXY_LIFETIME = 10  # 10 minutes.
 live_proxies = {}
 
 free_ports = PORT_RANGE.copy()
-blocked_ports = []
 
 
 # TODO: Implement VPN check and TOR check.
@@ -80,8 +79,10 @@ def gen_proxy():
     # Setup params for proxy. Signature: MitMInstance(instance_uuid, port, creds, metadata="", addon_path="mitmdump")
     instance_uuid = str(uuid.uuid4().hex)
 
+    if len(free_ports) == 0:
+        return "No free ports, please wait and try again later.", 503
+
     port = free_ports.pop()
-    blocked_ports.append(port)
 
     creds = {
         "username": "username",
@@ -174,7 +175,6 @@ def proxy_manager():
         for port in remove:
             del live_proxies[port]
 
-            blocked_ports.remove(port)
             free_ports.append(port)
 
         time.sleep(2.5)
