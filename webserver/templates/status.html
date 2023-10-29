@@ -6,8 +6,6 @@
 {% endblock head %}
 
 {% block content %}
-    <input type="hidden" id="p-ip" value="{{ ip }}">
-    <input type="hidden" id="p-port" value="{{ port }}">
     <input type="hidden" id="p-username" value="{{ creds.0 }}">
     <input type="hidden" id="p-password" value="{{ creds.1 }}">
     <input type="hidden" id="endpoint" value="{{ url_for("check_proxy_status", pk_port=port) }}">
