@@ -11,6 +11,7 @@
 * Create a virtual environment `python3 -m venv venv`
 * Activate the virtual environment
 * Install requirements `pip install -r requirements.txt`
+* cd into the `webserver` folder `cd webserver`
 * Run the `server.py` file
 * Go to the URL in the console, and hit `Generate proxy` **stay on the page it redirects you to**
 * Get your computer's IP address using `ipconfig`
