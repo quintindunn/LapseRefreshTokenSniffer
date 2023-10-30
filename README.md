@@ -8,19 +8,19 @@
 ### Start on your computer:
 * Clone the repository `git clone https://github.com/quintindunn/LapseRefreshTokenSniffer.git`
 * `cd` into the directory `cd LapseRefreshTokenSniffer`
-* Start the proxy server by running `run.bat`
-* Get computer IPV4:
-  * Open command prompt
-  * Type `ipconfig`
-  * Next to `IPv4 Address` will be your IP, it will look something like `192.168.1.10`
-
+* Create a virtual environment `python3 -m venv venv`
+* Activate the virtual environment
+* Install requirements `pip install -r requirements.txt`
+* Run the `server.py` file
+* Go to the URL in the console, and hit `Generate proxy` **stay on the page it redirects you to**
+* Get your computer's IP address using `ipconfig`
+  
 ### Now onto your phone:
-* Log out of Lapse
-* Reopen Lapse
-* Enter your phone number and hit next, wait for your verification code **DO NOT ENTER IT YET.**
-* Go to `settings -> network -> <your wifi network> -> i -> Configure Proxy`
-* Select manual
-* Enter your computer IP in the `server` field
-* Enter `8003` in the `port` field.
-* Go back to Lapse and enter your verification code.
-* Watch the output of the proxy for your codes.
+* Go to settings > network > `<YOUR_NETWORK>` > i > proxy and select manual
+* Enter the credentials **Use the ip from `ipconfig`**
+* Go to the url `mitm.it` on safari
+* Follow the instructions for IOS
+* Go to lapse, sign out, and sign back in.
+
+## Back to your computer:
+* Look in the box and your credentials should be there, for [LapsePy](https://github.com/quintindunn/lapsepy/) you'll want the `refresh-token`.
