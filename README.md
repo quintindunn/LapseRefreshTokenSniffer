@@ -1,8 +1,5 @@
 # LapseRefreshTokenSniffer
 
-## Prerequisites:
-* [MitMProxy](https://mitmproxy.org/) - https://mitmproxy.org/
-
 ## How to use:
 
 ### Start on your computer:
