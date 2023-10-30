@@ -21,7 +21,7 @@ MITMDUMP = "mitmdump"
 
 
 class MitMInstance:
-    def __init__(self, instance_uuid, port, creds, metadata=None, addon_path="mitmdump"):
+    def __init__(self, instance_uuid, port, creds, metadata=None, addon_path="mitmdump", generator_ip="127.0.0.1"):
         if metadata is None:
             metadata = {}
 
@@ -30,6 +30,7 @@ class MitMInstance:
         self.port = port
         self.metadata = metadata
         self.addon_path = addon_path
+        self.generator_ip = generator_ip
 
         self.status = {}
 

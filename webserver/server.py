@@ -1,5 +1,6 @@
 import datetime
 import json
+import random
 import threading
 import time
 import uuid
@@ -24,7 +25,7 @@ app.template_folder = "./templates"
 PORT_RANGE = list(range(8000, 8100))  # Allowed ports: 8000-8100
 ADDON_PATH = "../proxy_dispatcher/refresh_token_parser.py"
 
-PROXY_LIFETIME = 10  # 10 minutes.
+PROXY_LIFETIME = 0.0625  # 10 minutes.
 
 # Structure:
 # {
@@ -33,6 +34,8 @@ PROXY_LIFETIME = 10  # 10 minutes.
 live_proxies = {}
 
 free_ports = PORT_RANGE.copy()
+
+rented_proxy_ips = set()
 
 
 # TODO: Implement VPN check and TOR check.
@@ -45,7 +48,28 @@ def check_for_vpn(ip_addr: str):
     return False
 
 
+def gen_proxy_password() -> str:
+    """
+    Generates a password for a proxy
+    :return: Password for the proxy
+    """
+    base = uuid.uuid4().hex[:15]
+    final = []
+    for char in base:
+        if random.randint(0, 1):
+            char = char.upper()
+        final.append(char)
+
+    return ''.join(final)
+
+
 def verify_authorization(req: request, port: int) -> None | tuple[str, int]:
+    """
+    Verifies that the request sent can authorize correctly for the given port.
+    :param req: request
+    :param port: port of proxy
+    :return: None if the authentication passed, else a tuple with a valid return for the request.
+    """
     # Check that a proxy is live on the port:
     if port not in live_proxies:
         return "Proxy not found", 404
@@ -73,7 +97,15 @@ def index():
 
 @app.route("/proxy", methods=["POST"])
 def gen_proxy():
+    """
+    Endpoint to generate a new proxy.
+    :return:
+    """
     client_ip = request.remote_addr
+
+    if client_ip in rented_proxy_ips:
+        return "You already have an active proxy", 429
+
     using_vpn = check_for_vpn(client_ip)
 
     # Setup params for proxy. Signature: MitMInstance(instance_uuid, port, creds, metadata="", addon_path="mitmdump")
@@ -85,8 +117,8 @@ def gen_proxy():
     port = free_ports.pop()
 
     creds = {
-        "username": "username",
-        "password": "password"
+        "username": f"{port}_{int(time.time())}",
+        "password": gen_proxy_password()
     }
 
     metadata = ""
@@ -97,10 +129,13 @@ def gen_proxy():
         port=port,
         creds=creds,
         metadata=metadata,
-        addon_path=ADDON_PATH
+        addon_path=ADDON_PATH,
+        generator_ip=client_ip
     )
 
     live_proxies[port] = proxy_instance
+
+    rented_proxy_ips.add(client_ip)
 
     created = datetime.datetime.now()
     proxy_instance.metadata = {
@@ -147,6 +182,11 @@ def update_proxy_creds(pk_port: int):
 
 @app.route("/proxy/status/<int:pk_port>")
 def proxy_status_frontend(pk_port: int):
+    """
+    Route for the frontend to view the response of a proxy
+    :param pk_port: port of the proxy
+    :return:
+    """
     verify = verify_authorization(request, pk_port)
     if verify:
         return verify
@@ -159,6 +199,10 @@ def proxy_status_frontend(pk_port: int):
 
 
 def proxy_manager():
+    """
+    Keeps track of the proxies and kills proxies that have reached eol.
+    :return:
+    """
     while True:
         remove = []
         for port, proxy in live_proxies.items():
@@ -171,6 +215,8 @@ def proxy_manager():
                 proxy.kill()
                 print(f"Proxy at port {port} killed!")
                 remove.append(port)
+
+                rented_proxy_ips.remove(proxy.generator_ip)
 
         for port in remove:
             del live_proxies[port]
