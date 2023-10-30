@@ -25,7 +25,7 @@ app.template_folder = "./templates"
 PORT_RANGE = list(range(8000, 8100))  # Allowed ports: 8000-8100
 ADDON_PATH = "../proxy_dispatcher/refresh_token_parser.py"
 
-PROXY_LIFETIME = 0.0625  # 10 minutes.
+PROXY_LIFETIME = 10  # 10 minutes.
 
 # Structure:
 # {
@@ -117,7 +117,7 @@ def gen_proxy():
     port = free_ports.pop()
 
     creds = {
-        "username": f"{port}_{int(time.time())}",
+        "username": f"{port} ",
         "password": gen_proxy_password()
     }
 
@@ -227,7 +227,7 @@ def proxy_manager():
 
 
 if __name__ == '__main__':
-    threading.Thread(target=lambda: app.run()).start()
+    threading.Thread(target=lambda: app.run(host="0.0.0.0")).start()
     threading.Thread(target=proxy_manager, daemon=True).start()
     instance = MitMInstance(
         instance_uuid=uuid.uuid4().hex,

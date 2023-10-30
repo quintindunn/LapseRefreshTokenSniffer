@@ -4,6 +4,7 @@ const proxy_password = document.getElementById("p-password").value;
 const endpoint = document.getElementById("endpoint").value;
 
 const output = document.getElementById("proxy-results");
+const end_warning = document.getElementById("end-warning");
 
 function update() {
     let XHR = new XMLHttpRequest()
@@ -14,8 +15,16 @@ function update() {
         if (XHR.status === 200) {
             output.innerText = XHR.responseText;
         }
+        else if (XHR.status === 404) {
+            clearInterval(interval);
+            warn_over();
+        }
     }
     XHR.send()
 }
 
-setInterval(update, 1000);
+function warn_over() {
+    end_warning.style.display = "block";
+}
+
+let interval = setInterval(update, 1000);
