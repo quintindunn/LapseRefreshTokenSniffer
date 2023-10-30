@@ -118,7 +118,7 @@ def gen_proxy():
     port = free_ports.pop()
 
     creds = {
-        "username": f"{port} ",
+        "username": f"{port}",
         "password": gen_proxy_password()
     }
 
@@ -197,8 +197,6 @@ def proxy_status_frontend(pk_port: int):
 
     qr_url = f"{scheme}://{request.server[0]}:{request.server[1]}" \
              f"{url_for('echo', pk_data=request.args.get('authorization').split(':')[1])}"
-
-    print(qr_url)
 
     pwd_qr_code = qrcode.QRCode()
     pwd_qr_code.add_data(qr_url)

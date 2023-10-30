@@ -9,7 +9,6 @@ import signal
 import subprocess
 import sys
 import threading
-import time
 import uuid
 
 import psutil
@@ -61,7 +60,6 @@ class MitMInstance:
                    "-s", self.addon_path,
                    "--ignore-hosts", "register.appattest.apple.com"
                    ] + command_suffix
-
         self.proc = subprocess.Popen(command, stdout=sys.stdout, shell=True)
         self.proc.wait()
 
