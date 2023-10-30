@@ -1,15 +1,16 @@
+import base64
 import datetime
+import io
 import json
 import random
 import threading
 import time
 import uuid
-
-from flask import Flask, render_template, request, jsonify, redirect, url_for
-
 import sys
-
 import logging
+
+import qrcode
+from flask import Flask, render_template, request, redirect, url_for
 
 sys.path.append('..')  # Allow importing from ../proxy_dispatcher
 
@@ -190,12 +191,41 @@ def proxy_status_frontend(pk_port: int):
     verify = verify_authorization(request, pk_port)
     if verify:
         return verify
+    request.server = ('192.168.1.13', 5000)
+
+    scheme = request.scheme
+
+    qr_url = f"{scheme}://{request.server[0]}:{request.server[1]}" \
+             f"{url_for('echo', pk_data=request.args.get('authorization').split(':')[1])}"
+
+    print(qr_url)
+
+    pwd_qr_code = qrcode.QRCode()
+    pwd_qr_code.add_data(qr_url)
+    pwd_qr_code.make()
+
+    im = pwd_qr_code.make_image()
+    buffer = io.BytesIO()
+    im.save(buffer, kind="JPEG")
+    b64_im = base64.b64encode(buffer.getvalue()).decode("ascii")
+
     ctx = {
         'creds': request.args.get("authorization").split(":"),
         'ip': request.server[0],
-        'port': pk_port
+        'port': pk_port,
+        'qr': b64_im
     }
     return render_template("status.html", **ctx)
+
+
+@app.route("/echo/<string:pk_data>")
+def echo(pk_data: str):
+    """
+    Echos a message back to the user
+    :param pk_data:
+    :return:
+    """
+    return f"<p style=\"font-size: 80px\">{pk_data}</p>"
 
 
 def proxy_manager():

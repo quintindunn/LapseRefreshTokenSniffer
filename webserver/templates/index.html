@@ -12,13 +12,11 @@
     <hr>
     <div class="proxy-dispatch-info">
         <h2>Start your own proxy to get your Refresh Token</h2>
-        <p>You can only get [INSERT_MAX_PROXIES_PER_HOUR] proxies per hour, each proxy will only stay live for [TIMELIMIT_PER_PROXY] minutes.</p>
         <p>Here is a tutorial on how to use this tool!</p>
         <iframe width="560" height="315" src="https://www.youtube.com/embed/NpEaa2P7qZI?si=AtZh8AhMWEjZKuN9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
     </div>
     <hr>
     <div class="proxy-dispatch">
-        <p>You've used 0 of you [INSERT_MAX_PROXIES_PER_HOUR] proxies this hour.</p>
         <form action="{{ url_for('gen_proxy') }}" method="POST">
             <button class="proxy-dispatch" type="submit">Generate proxy</button>
         </form>

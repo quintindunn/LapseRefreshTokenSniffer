@@ -41,3 +41,7 @@ body {
     width: 60vw;
     margin: auto;
 }
+
+.qr-code > img {
+    width: 10vw;
+}
