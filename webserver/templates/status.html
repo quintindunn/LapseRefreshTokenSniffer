@@ -1,0 +1,48 @@
+{% extends 'core/core.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename="status/status.css") }}">
+    <script src="{{ url_for('static', filename="status/updater.js") }}" defer></script>
+{% endblock head %}
+
+{% block content %}
+    <input type="hidden" id="p-username" value="{{ creds.0 }}">
+    <input type="hidden" id="p-password" value="{{ creds.1 }}">
+    <input type="hidden" id="endpoint" value="{{ url_for("check_proxy_status", pk_port=port) }}">
+    <div class="info">
+        <h1>Your proxy has been generated!</h1>
+    </div>
+    <div class="proxy-info">
+        <h2>To use your proxy use the following credentials:</h2>
+        <p>Here is a tutorial on how to use this tool!</p>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/NpEaa2P7qZI?si=AtZh8AhMWEjZKuN9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+        <table>
+            <tr>
+                <td>IP address</td>
+                <td>{{ ip }}</td>
+            </tr>
+            <tr>
+                <td>Port</td>
+                <td>{{ port }}</td>
+            </tr>
+            <tr>
+                <td>Username</td>
+                <td>{{ creds.0 }}</td>
+            </tr>
+            <tr>
+                <td>Password</td>
+                <td>{{ creds.1 }}</td>
+            </tr>
+        </table>
+        <div class="qr-code">
+            <img src="data:image/jpeg;base64,{{ qr }}">
+        </div>
+    </div>
+    <hr>
+    <div class="proxy-results">
+        <h2>Once the proxy gets your credentials it will be displayed below:</h2><br>
+        <p style="color: red; display: none" id="end-warning">This proxy has ended, you'll need to generate a new proxy to continue getting credentials.</p>
+        <textarea name="proxy-results" id="proxy-results" cols="30" rows="10" disabled></textarea>
+    </div>
+{% endblock content %}
