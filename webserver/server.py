@@ -191,7 +191,6 @@ def proxy_status_frontend(pk_port: int):
     verify = verify_authorization(request, pk_port)
     if verify:
         return verify
-    request.server = ('192.168.1.13', 5000)
 
     scheme = request.scheme
 
@@ -254,15 +253,18 @@ def proxy_manager():
         time.sleep(2.5)
 
 
-if __name__ == '__main__':
-    threading.Thread(target=lambda: app.run(host="0.0.0.0")).start()
+def start_handlers():
     threading.Thread(target=proxy_manager, daemon=True).start()
     instance = MitMInstance(
         instance_uuid=uuid.uuid4().hex,
         port=max(free_ports) + 1,
-        creds={"username": "admin", "password": "password"},
+        creds={"username": "admin", "password": uuid.uuid4().hex},
         metadata="Manual instance",
         addon_path=ADDON_PATH
     )
-
     instance.dispatch(blocking=True)
+
+
+if __name__ == '__main__':
+    threading.Thread(target=lambda: app.run(host="0.0.0.0")).start()
+    start_handlers()

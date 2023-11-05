@@ -60,7 +60,7 @@ class MitMInstance:
                    "-s", self.addon_path,
                    "--ignore-hosts", "register.appattest.apple.com"
                    ] + command_suffix
-        self.proc = subprocess.Popen(command, stdout=sys.stdout, shell=True)
+        self.proc = subprocess.Popen(command, stdout=sys.stdout, stdin=subprocess.PIPE, shell=True)
         self.proc.wait()
 
         logger.info(f"MitMDump instance {self.uuid=} completed!".
@@ -109,13 +109,4 @@ if __name__ == '__main__':
 
     instance.dispatch(False)
 
-    instance = MitMInstance(
-        instance_uuid=uuid.uuid4().hex,
-        port=8100,
-        creds={"username": "username", "password": "password"},
-        metadata="Manual instance",
-        addon_path=addon_path
-    )
-
-    # At least one instance that's blocking is required. Currently unsure why, a non-blocking workaround would be better
-    instance.dispatch(True)
+    input()
