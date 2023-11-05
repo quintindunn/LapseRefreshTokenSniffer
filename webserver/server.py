@@ -191,7 +191,6 @@ def proxy_status_frontend(pk_port: int):
     verify = verify_authorization(request, pk_port)
     if verify:
         return verify
-    request.server = ('192.168.1.13', 5000)
 
     scheme = request.scheme
 
